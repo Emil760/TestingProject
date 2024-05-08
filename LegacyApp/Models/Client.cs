@@ -1,4 +1,6 @@
-﻿namespace LegacyApp
+﻿using LegacyApp.Enums;
+
+namespace LegacyApp.Models
 {
     public class Client
     {

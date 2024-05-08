@@ -1,17 +1,23 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using LegacyApp.Enums;
+using LegacyApp.Models;
 
-namespace LegacyApp
+namespace LegacyApp.Repositories
 {
     public class ClientRepository
     {
+        private readonly string _connectionString;
+        
+        public ClientRepository()
+        {
+            _connectionString = ConfigurationManager.ConnectionStrings["appDatabase"].ConnectionString;
+        }
+        
         public Client GetById(int id)
         {
-            Client client = null;
-            var connectionString = ConfigurationManager.ConnectionStrings["appDatabase"].ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             {
                 var command = new SqlCommand
                 {
@@ -25,18 +31,19 @@ namespace LegacyApp
                 
                 connection.Open();
                 var reader = command.ExecuteReader(CommandBehavior.CloseConnection);
-                while (reader.Read())
+                
+                if (reader.Read())
                 {
-                    client = new Client
+                    return new Client
                     {
-                        Id = int.Parse(reader["ClientId"].ToString()),
+                        Id = reader.GetInt32("ClientId"),
                         Name = reader["Name"].ToString(),
                         ClientStatus = (ClientStatus) int.Parse(reader["ClientStatus"].ToString())
                     };
                 }
             }
 
-            return client;
+            return null;
         }
     }
 }
